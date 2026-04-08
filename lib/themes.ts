@@ -26,7 +26,7 @@ export const MONTH_THEMES: Record<number, MonthTheme> = {
   // August - Monsoon (Varsha)
   7: { primary: '#d97706', background: '#fffbeb', surface: '#ffffff', text: '#78350f', textMuted: '#fcd34d', radius: '0px', shadow: '0 4px 6px -1px rgba(217, 119, 6, 0.1)' },
   // September - Autumn (Sharad)
-  8: { primary: '#3b82f6', background: '#eff6ff', surface: '#ffffff', text: '#1e3a8a', textMuted: '#93c5fd', radius: '0px', shadow: '0 2px 4px -1px rgba(59, 130, 246, 0.1)' },
+  8: { primary: '#3b82f6', background: '#1e293b', surface: '#0f172a', text: '#f1f5f9', textMuted: '#94a3b8', radius: '0px', shadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4)' },
   // October - Autumn (Sharad)
   9: { primary: '#f97316', background: '#111827', surface: '#1f2937', text: '#f9fafb', textMuted: '#9ca3af', radius: '0px', shadow: '0 15px 30px -5px rgba(0, 0, 0, 0.5)' },
   // November - Pre-Winter (Hemanta)
