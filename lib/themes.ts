@@ -25,12 +25,12 @@ export const MONTH_THEMES: Record<number, MonthTheme> = {
   6: { primary: '#ef4444', background: '#fef2f2', surface: '#ffffff', text: '#7f1d1d', textMuted: '#fca5a5', radius: '0px', shadow: '0 6px 12px -3px rgba(239, 68, 68, 0.2)' },
   // August - Monsoon (Varsha)
   7: { primary: '#d97706', background: '#fffbeb', surface: '#ffffff', text: '#78350f', textMuted: '#fcd34d', radius: '0px', shadow: '0 4px 6px -1px rgba(217, 119, 6, 0.1)' },
-  // September - Autumn (Sharad)
-  8: { primary: '#3b82f6', background: '#1e293b', surface: '#0f172a', text: '#f1f5f9', textMuted: '#94a3b8', radius: '0px', shadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4)' },
-  // October - Autumn (Sharad)
-  9: { primary: '#f97316', background: '#111827', surface: '#1f2937', text: '#f9fafb', textMuted: '#9ca3af', radius: '0px', shadow: '0 15px 30px -5px rgba(0, 0, 0, 0.5)' },
-  // November - Pre-Winter (Hemanta)
-  10: { primary: '#b45309', background: '#fef3c7', surface: '#fffbeb', text: '#78350f', textMuted: '#fcd34d', radius: '0px', shadow: '0 8px 15px -3px rgba(180, 83, 9, 0.15)' },
-  // December - Pre-Winter (Hemanta)
-  11: { primary: '#dc2626', background: '#fef2f2', surface: '#ffffff', text: '#7f1d1d', textMuted: '#fca5a5', radius: '0px', shadow: '0 12px 25px -5px rgba(220, 38, 38, 0.2)' },
+  // September - Autumn (Sharad) (Light Theme)
+  8: { primary: '#ea580c', background: '#fffbeb', surface: '#ffffff', text: '#78350f', textMuted: '#fcd34d', radius: '0px', shadow: '0 4px 6px -1px rgba(0,0,0,0.05)' },
+  // October - Autumn (Sharad) (Light Theme)
+  9: { primary: '#d97706', background: '#fef3c7', surface: '#fffef0', text: '#78350f', textMuted: '#fbbf24', radius: '0px', shadow: '0 8px 15px -3px rgba(0,0,0,0.1)' },
+  // November - Winter Heavy (Hemanta) (Old Sept Dark Tone)
+  10: { primary: '#3b82f6', background: '#1e293b', surface: '#0f172a', text: '#f1f5f9', textMuted: '#94a3b8', radius: '0px', shadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4)' },
+  // December - Winter Heavy (Hemanta) (Old Oct Dark Tone)
+  11: { primary: '#f97316', background: '#111827', surface: '#1f2937', text: '#f9fafb', textMuted: '#9ca3af', radius: '0px', shadow: '0 15px 30px -5px rgba(0, 0, 0, 0.5)' },
 };
