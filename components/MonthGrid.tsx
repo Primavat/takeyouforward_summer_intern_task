@@ -1,8 +1,9 @@
 'use client';
+
 import React from 'react';
 import { useCalendar } from '@/context/CalendarContext';
 import { getDaysArray, isInRange, isWeekend, isSameDay } from '@/lib/calendarUtils';
-import { isSameMonth, isBefore, isToday } from 'date-fns';
+import { isSameMonth } from 'date-fns';
 import { DayCell } from './DayCell';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,30 +14,16 @@ export function MonthGrid() {
   const days = getDaysArray(state.currentMonth);
 
   const handleDayClick = (day: Date) => {
-    if (!state.selectedStart || (state.selectedStart && state.selectedEnd)) {
-      dispatch({ type: 'SET_START', payload: day });
-      dispatch({ type: 'SET_END', payload: null });
+    // Single click explicitly sets it as a SINGLE selection.
+    dispatch({ type: 'SET_SINGLE', payload: day });
+  };
+
+  const handleDayDoubleClick = (day: Date) => {
+    // Double click handles range selection
+    if (!state.rangeStart || (state.rangeStart && state.rangeEnd)) {
+      dispatch({ type: 'SET_RANGE_START', payload: day });
     } else {
-      if (isBefore(day, state.selectedStart)) {
-        dispatch({ type: 'SET_END', payload: state.selectedStart });
-        dispatch({ type: 'SET_START', payload: day });
-      } else {
-        dispatch({ type: 'SET_END', payload: day });
-      }
-    }
-  };
-
-  const handleDayHover = (day: Date) => {
-    if (state.selectedStart && !state.selectedEnd) {
-      dispatch({ type: 'SET_HOVER', payload: day });
-    } else if (state.hoverDate !== null) {
-      dispatch({ type: 'SET_HOVER', payload: null });
-    }
-  };
-
-  const handleTouchStart = (day: Date) => {
-    if (state.selectedStart && !state.selectedEnd) {
-      dispatch({ type: 'SET_HOVER', payload: day });
+      dispatch({ type: 'SET_RANGE_END', payload: day });
     }
   };
 
@@ -48,9 +35,7 @@ export function MonthGrid() {
         handleDayClick(day);
         break;
       case 'Escape':
-        dispatch({ type: 'SET_START', payload: null });
-        dispatch({ type: 'SET_END', payload: null });
-        dispatch({ type: 'SET_HOVER', payload: null });
+        dispatch({ type: 'CLEAR_SELECTION' });
         break;
       case 'ArrowRight':
         e.preventDefault();
@@ -98,38 +83,33 @@ export function MonthGrid() {
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           {days.map((day, idx) => {
-          const isOtherMonth = !isSameMonth(day, state.currentMonth);
-          const isSelectedStart = isSameDay(day, state.selectedStart);
-          const isSelectedEnd = isSameDay(day, state.selectedEnd);
-          
-          let inRange = false;
-          let isHoverPreview = false;
-          
-          if (state.selectedStart && state.selectedEnd) {
-             inRange = isInRange(day, state.selectedStart, state.selectedEnd);
-          } else if (state.selectedStart && state.hoverDate) {
-             isHoverPreview = isInRange(day, state.selectedStart, state.hoverDate);
-          }
+            const isOtherMonth = !isSameMonth(day, state.currentMonth);
+            const isSelectedSingle = isSameDay(day, state.selectedSingle);
+            const isRangeStart = isSameDay(day, state.rangeStart);
+            const isRangeEnd = isSameDay(day, state.rangeEnd);
+            
+            let inRange = false;
+            if (state.rangeStart && state.rangeEnd) {
+               inRange = isInRange(day, state.rangeStart, state.rangeEnd);
+            }
 
-          return (
-            <DayCell
-              key={idx}
-              day={day}
-              isWeekend={isWeekend(day)}
-              isOtherMonth={isOtherMonth}
-              isToday={isToday(day)}
-              isSelectedStart={isSelectedStart}
-              isSelectedEnd={isSelectedEnd}
-              isInRange={inRange}
-              isHoverPreview={isHoverPreview}
-              onClick={() => handleDayClick(day)}
-              onMouseEnter={() => handleDayHover(day)}
-              onTouchStart={() => handleTouchStart(day)}
-              onTouchEnd={() => {}}
-              onKeyDown={(e) => handleKeyDown(e, day, idx)}
-            />
-          );
-        })}
+            return (
+              <DayCell
+                key={idx}
+                day={day}
+                isWeekend={isWeekend(day)}
+                isOtherMonth={isOtherMonth}
+                isToday={isSameDay(day, new Date())}
+                isSelectedSingle={isSelectedSingle}
+                isRangeStart={isRangeStart}
+                isRangeEnd={isRangeEnd}
+                isInRange={inRange}
+                onClick={() => handleDayClick(day)}
+                onDoubleClick={() => handleDayDoubleClick(day)}
+                onKeyDown={(e) => handleKeyDown(e, day, idx)}
+              />
+            );
+          })}
         </motion.div>
       </AnimatePresence>
     </div>

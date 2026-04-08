@@ -27,7 +27,7 @@ export function HeroPanel() {
 
   return (
     <div 
-      className="relative flex flex-col items-center justify-center p-8 text-white min-h-[300px] md:min-h-full overflow-hidden"
+      className="relative flex flex-col items-center justify-center p-8 text-white min-h-[200px] sm:min-h-[300px] md:min-h-full overflow-hidden shrink-0"
       style={{ backgroundColor: 'var(--accent)' }}
     >
       {state.heroImageUrl && (

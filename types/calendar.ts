@@ -1,8 +1,8 @@
 export type CalendarState = {
   currentMonth: Date;
-  selectedStart: Date | null;
-  selectedEnd: Date | null;
-  hoverDate: Date | null;
+  selectedSingle: Date | null;
+  rangeStart: Date | null;
+  rangeEnd: Date | null;
   notes: Record<string, string>;
   heroImageUrl: string | null;
   accentColor: string;

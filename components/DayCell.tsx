@@ -7,14 +7,12 @@ interface DayCellProps {
   isWeekend: boolean;
   isOtherMonth: boolean;
   isToday: boolean;
-  isSelectedStart: boolean;
-  isSelectedEnd: boolean;
+  isSelectedSingle: boolean;
+  isRangeStart: boolean;
+  isRangeEnd: boolean;
   isInRange: boolean;
-  isHoverPreview: boolean;
   onClick: () => void;
-  onMouseEnter: () => void;
-  onTouchStart: () => void;
-  onTouchEnd: () => void;
+  onDoubleClick: () => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
 
@@ -23,23 +21,21 @@ export function DayCell({
   isWeekend,
   isOtherMonth,
   isToday,
-  isSelectedStart,
-  isSelectedEnd,
+  isSelectedSingle,
+  isRangeStart,
+  isRangeEnd,
   isInRange,
-  isHoverPreview,
   onClick,
-  onMouseEnter,
-  onTouchStart,
-  onTouchEnd,
+  onDoubleClick,
   onKeyDown
 }: DayCellProps) {
-  const isSelected = isSelectedStart || isSelectedEnd;
-  const isStartAndEnd = isSelectedStart && isSelectedEnd;
+  const isSelected = isSelectedSingle || isRangeStart || isRangeEnd;
+  const isStartAndEnd = isRangeStart && isRangeEnd;
   
   const dateKey = format(day, 'yyyy-MM-dd');
   const holidayName = holidays[dateKey];
 
-  const baseClasses = "relative w-full h-12 flex items-center justify-center text-sm transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)]";
+  const baseClasses = "relative w-full aspect-square sm:h-12 sm:aspect-auto flex flex-col items-center justify-center text-xs sm:text-sm transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)]";
   
   let conditionalClasses = "";
   let textClasses = "text-gray-700";
@@ -48,19 +44,19 @@ export function DayCell({
     textClasses = "text-gray-300";
     conditionalClasses = "bg-white hover:bg-gray-50";
   } else if (isStartAndEnd) {
-    conditionalClasses = "bg-[var(--accent)] rounded-full";
+    conditionalClasses = "bg-[var(--accent)] rounded-full text-white";
     textClasses = "text-white font-semibold";
-  } else if (isSelectedStart) {
-    conditionalClasses = "bg-[var(--accent)] rounded-l-full";
-    textClasses = "text-white font-semibold flex-1 z-10";
-  } else if (isSelectedEnd) {
-    conditionalClasses = "bg-[var(--accent)] rounded-r-full";
-    textClasses = "text-white font-semibold flex-1 z-10";
+  } else if (isRangeStart) {
+    conditionalClasses = "bg-[var(--accent)] rounded-l-full text-white";
+    textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
+  } else if (isRangeEnd) {
+    conditionalClasses = "bg-[var(--accent)] rounded-r-full text-white";
+    textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
+  } else if (isSelectedSingle) {
+    conditionalClasses = "bg-[var(--accent)] rounded-full text-white";
+    textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isInRange) {
     conditionalClasses = "bg-[var(--accent)] bg-opacity-20";
-    if (isHoverPreview && !isSelectedStart) conditionalClasses += " hover:bg-opacity-30";
-  } else if (isHoverPreview) {
-    conditionalClasses = "bg-[var(--accent)] bg-opacity-10 rounded-full";
   } else {
     conditionalClasses = "bg-white hover:bg-gray-100 rounded-full";
     if (isWeekend) textClasses = "text-red-500 font-medium";
@@ -74,15 +70,21 @@ export function DayCell({
       title={holidayName || format(day, 'PPPP')}
       className={`${baseClasses} ${conditionalClasses}`}
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
+      onDoubleClick={onDoubleClick}
       onKeyDown={onKeyDown}
       tabIndex={isOtherMonth ? -1 : 0}
       data-date={dateKey}
     >
       <span className={textClasses}>{format(day, 'd')}</span>
-      <div className="absolute bottom-1 flex gap-1">
+      
+      {/* Range Labels UI Badge */}
+      {(isRangeStart || isRangeEnd) && !isStartAndEnd && (
+        <span className="text-[9px] leading-none absolute bottom-0.5 sm:bottom-1 font-medium opacity-80 pointer-events-none">
+          {isRangeStart ? 'Start' : 'End'}
+        </span>
+      )}
+      
+      <div className={`absolute ${isRangeStart || isRangeEnd ? 'top-1' : 'bottom-1'} flex gap-1 pointer-events-none`}>
         {isToday && !isSelected && (
           <span className="w-1 h-1 rounded-full bg-[var(--accent)]" />
         )}

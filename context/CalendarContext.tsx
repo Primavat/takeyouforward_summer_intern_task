@@ -2,13 +2,13 @@
 
 import React, { createContext, useContext, useReducer, ReactNode, Dispatch, useEffect, useRef } from 'react';
 import { CalendarState } from '@/types/calendar';
-import { parseISO } from 'date-fns';
 
 type Action =
   | { type: 'SET_MONTH'; payload: Date }
-  | { type: 'SET_START'; payload: Date | null }
-  | { type: 'SET_END'; payload: Date | null }
-  | { type: 'SET_HOVER'; payload: Date | null }
+  | { type: 'SET_SINGLE'; payload: Date | null }
+  | { type: 'SET_RANGE_START'; payload: Date | null }
+  | { type: 'SET_RANGE_END'; payload: Date | null }
+  | { type: 'CLEAR_SELECTION' }
   | { type: 'SET_NOTE'; payload: { key: string; note: string } }
   | { type: 'SET_IMAGE'; payload: string | null }
   | { type: 'SET_ACCENT'; payload: string }
@@ -16,9 +16,9 @@ type Action =
 
 const initialState: CalendarState = {
   currentMonth: new Date(),
-  selectedStart: null,
-  selectedEnd: null,
-  hoverDate: null,
+  selectedSingle: null,
+  rangeStart: null,
+  rangeEnd: null,
   notes: {},
   heroImageUrl: null,
   accentColor: '#3b82f6', // Default blue-500
@@ -28,12 +28,14 @@ function calendarReducer(state: CalendarState, action: Action): CalendarState {
   switch (action.type) {
     case 'SET_MONTH':
       return { ...state, currentMonth: action.payload };
-    case 'SET_START':
-      return { ...state, selectedStart: action.payload };
-    case 'SET_END':
-      return { ...state, selectedEnd: action.payload };
-    case 'SET_HOVER':
-      return { ...state, hoverDate: action.payload };
+    case 'SET_SINGLE':
+      return { ...state, selectedSingle: action.payload, rangeStart: null, rangeEnd: null };
+    case 'SET_RANGE_START':
+      return { ...state, rangeStart: action.payload, selectedSingle: null };
+    case 'SET_RANGE_END':
+      return { ...state, rangeEnd: action.payload, selectedSingle: null };
+    case 'CLEAR_SELECTION':
+      return { ...state, selectedSingle: null, rangeStart: null, rangeEnd: null };
     case 'SET_NOTE':
       return { ...state, notes: { ...state.notes, [action.payload.key]: action.payload.note } };
     case 'SET_IMAGE':
@@ -65,9 +67,9 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
           type: 'HYDRATE',
           payload: {
             currentMonth: parsed.currentMonth ? new Date(parsed.currentMonth) : new Date(),
-            selectedStart: parsed.selectedStart ? new Date(parsed.selectedStart) : null,
-            selectedEnd: parsed.selectedEnd ? new Date(parsed.selectedEnd) : null,
-            hoverDate: null, // Don't persist hover
+            selectedSingle: parsed.selectedSingle ? new Date(parsed.selectedSingle) : null,
+            rangeStart: parsed.rangeStart ? new Date(parsed.rangeStart) : null,
+            rangeEnd: parsed.rangeEnd ? new Date(parsed.rangeEnd) : null,
             notes: parsed.notes || {},
             heroImageUrl: parsed.heroImageUrl || null,
             accentColor: parsed.accentColor || '#3b82f6',
@@ -85,8 +87,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
     
     const t = setTimeout(() => {
       localStorage.setItem('calendar_state', JSON.stringify({
-        ...state,
-        hoverDate: null // Don't persist hover
+        ...state
       }));
     }, 500);
 

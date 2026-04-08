@@ -9,7 +9,8 @@ import {
   isWeekend as dateFnsIsWeekend,
   isWithinInterval,
   isBefore,
-  format
+  format,
+  addDays
 } from 'date-fns';
 
 /**
@@ -24,10 +25,17 @@ export function getDaysArray(currentMonth: Date): Date[] {
   const startDate = startOfWeek(monthStart);
   const endDate = endOfWeek(monthEnd);
 
-  return eachDayOfInterval({
+  const days = eachDayOfInterval({
     start: startDate,
     end: endDate,
   });
+
+  while (days.length < 42) {
+    const lastDay = days[days.length - 1];
+    days.push(addDays(lastDay, 1));
+  }
+
+  return days;
 }
 
 /**
@@ -70,9 +78,17 @@ export function isSameDay(dateLeft: Date, dateRight: Date | null): boolean {
  * @param {Date | null} end - Range end date.
  * @returns {string} The storage key (e.g. "2024-01-01_2024-01-05").
  */
-export function formatNoteKey(start: Date | null, end: Date | null): string {
-  if (!start || !end) return '';
-  const startToUse = isBefore(end, start) ? end : start;
-  const endToUse = isBefore(end, start) ? start : end;
-  return `${format(startToUse, 'yyyy-MM-dd')}_${format(endToUse, 'yyyy-MM-dd')}`;
+export function formatNoteKey(isGlobal: boolean, single: Date | null, start: Date | null, end: Date | null): string {
+  if (isGlobal || (!single && !start && !end)) return 'global';
+  if (single) return `single_${format(single, 'yyyy-MM-dd')}`;
+  
+  const startToUse = (start && end && isBefore(end, start)) ? end : start;
+  const endToUse = (start && end && isBefore(end, start)) ? start : end;
+  
+  if (startToUse && endToUse) {
+    return `range_${format(startToUse, 'yyyy-MM-dd')}_${format(endToUse, 'yyyy-MM-dd')}`;
+  } else if (startToUse) {
+    return `range_${format(startToUse, 'yyyy-MM-dd')}_pending`;
+  }
+  return 'global';
 }

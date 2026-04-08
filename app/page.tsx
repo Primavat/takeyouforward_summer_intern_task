@@ -10,11 +10,11 @@ function AppContent() {
 
   return (
     <div 
-      className="min-h-screen bg-gray-100 flex items-center justify-center p-4 md:p-8"
+      className="min-h-screen bg-gray-100 flex items-center justify-center p-0 md:p-6 lg:p-8"
       style={{ '--accent': state.accentColor } as React.CSSProperties}
     >
-      <main className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:grid md:grid-cols-5 relative">
-        <div className="md:col-span-2 relative">
+      <main className="w-full h-screen md:h-auto md:max-h-[90vh] md:max-w-6xl bg-white md:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:grid md:grid-cols-5 relative">
+        <div className="md:col-span-2 relative shrink-0">
           <HeroPanel />
         </div>
         
