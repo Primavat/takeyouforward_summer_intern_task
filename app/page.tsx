@@ -4,16 +4,36 @@ import React from 'react';
 import { CalendarProvider, useCalendar } from '@/context/CalendarContext';
 import { HeroPanel } from '@/components/HeroPanel';
 import { CalendarPanel } from '@/components/CalendarPanel';
+import { MONTH_THEMES } from '@/lib/themes';
 
 function AppContent() {
   const { state } = useCalendar();
+  const theme = MONTH_THEMES[state.currentMonth.getMonth()];
 
   return (
     <div 
-      className="min-h-screen bg-gray-100 flex items-center justify-center p-0 md:p-6 lg:p-8"
-      style={{ '--accent': state.accentColor } as React.CSSProperties}
+      className="min-h-screen flex items-center justify-center p-0 md:p-6 lg:p-8 transition-colors duration-500 ease-in-out"
+      style={{ 
+        backgroundColor: theme.background,
+        '--theme-primary': state.heroImageUrl && state.accentColor !== '#3b82f6' ? state.accentColor : theme.primary,
+        '--theme-bg': theme.background,
+        '--theme-surface': theme.surface,
+        '--theme-text': theme.text,
+        '--theme-text-muted': theme.textMuted,
+        '--theme-radius': theme.radius,
+        '--theme-shadow': theme.shadow,
+        '--accent': state.heroImageUrl && state.accentColor !== '#3b82f6' ? state.accentColor : theme.primary 
+      } as React.CSSProperties}
     >
-      <main className="w-full h-screen md:h-auto md:max-h-[90vh] md:max-w-6xl bg-white md:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:grid md:grid-cols-5 relative">
+      <main 
+        className="w-full h-screen md:h-auto md:max-h-[90vh] md:max-w-6xl overflow-hidden flex flex-col md:grid md:grid-cols-5 relative transition-all duration-500 ease-in-out"
+        style={{
+          backgroundColor: 'var(--theme-surface)',
+          borderRadius: 'var(--theme-radius)',
+          boxShadow: 'var(--theme-shadow)',
+          color: 'var(--theme-text)'
+        }}
+      >
         <div className="md:col-span-2 relative shrink-0">
           <HeroPanel />
         </div>

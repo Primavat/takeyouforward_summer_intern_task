@@ -32,7 +32,7 @@ export function CalendarPanel() {
   if (!hasNotes) buttonLabel = buttonLabel.replace('Edit', 'Add');
 
   return (
-    <div className="flex flex-col md:p-6 p-4 bg-white h-full relative" style={{ overflow: 'hidden' }}>
+    <div className="flex flex-col md:p-6 p-4 h-full relative" style={{ backgroundColor: 'var(--theme-surface)', color: 'var(--theme-text)', borderTopRightRadius: 'var(--theme-radius)', borderBottomRightRadius: 'var(--theme-radius)', overflow: 'hidden' }}>
       <MonthHeader />
       
       {/* Scrollable Container for grid & restricted overlay */}
@@ -48,8 +48,8 @@ export function CalendarPanel() {
       <div className="mt-8 flex justify-center items-center pb-2 shrink-0">
         <button
           onClick={() => setIsNotesOpen(true)}
-          className="px-6 py-3 rounded-full flex items-center gap-2 font-medium text-white shadow-md hover:shadow-lg transition-transform active:scale-95 text-sm sm:text-base"
-          style={{ backgroundColor: 'var(--accent)' }}
+          className="px-6 py-3 rounded-full flex items-center gap-2 font-medium shadow-md hover:shadow-lg transition-transform active:scale-95 text-sm sm:text-base"
+          style={{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-surface)' }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
           {buttonLabel}

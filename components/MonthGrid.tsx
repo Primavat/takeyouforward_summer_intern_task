@@ -6,24 +6,31 @@ import { getDaysArray, isInRange, isWeekend, isSameDay } from '@/lib/calendarUti
 import { isSameMonth } from 'date-fns';
 import { DayCell } from './DayCell';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRef } from 'react';
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function MonthGrid() {
   const { state, dispatch } = useCalendar();
   const days = getDaysArray(state.currentMonth);
+  const clickTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const handleDayClick = (day: Date) => {
-    // Single click explicitly sets it as a SINGLE selection.
-    dispatch({ type: 'SET_SINGLE', payload: day });
-  };
-
-  const handleDayDoubleClick = (day: Date) => {
-    // Double click handles range selection
-    if (!state.rangeStart || (state.rangeStart && state.rangeEnd)) {
-      dispatch({ type: 'SET_RANGE_START', payload: day });
-    } else {
-      dispatch({ type: 'SET_RANGE_END', payload: day });
+  const handleDayInteraction = (day: Date, detail: number) => {
+    // If detail is 1 (Single Click context normally firing)
+    if (detail === 1) {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      clickTimer.current = setTimeout(() => {
+        dispatch({ type: 'SET_SINGLE', payload: day });
+      }, 200);
+    } 
+    // If detail is 2 (Double Click correctly firing, intercepted)
+    else if (detail === 2) {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      if (!state.rangeStart || (state.rangeStart && state.rangeEnd)) {
+        dispatch({ type: 'SET_RANGE_START', payload: day });
+      } else {
+        dispatch({ type: 'SET_RANGE_END', payload: day });
+      }
     }
   };
 
@@ -32,7 +39,7 @@ export function MonthGrid() {
       case 'Enter':
       case ' ':
         e.preventDefault();
-        handleDayClick(day);
+        handleDayInteraction(day, 1);
         break;
       case 'Escape':
         dispatch({ type: 'CLEAR_SELECTION' });
@@ -104,8 +111,8 @@ export function MonthGrid() {
                 isRangeStart={isRangeStart}
                 isRangeEnd={isRangeEnd}
                 isInRange={inRange}
-                onClick={() => handleDayClick(day)}
-                onDoubleClick={() => handleDayDoubleClick(day)}
+                onClick={(e: React.MouseEvent) => handleDayInteraction(day, e.detail)}
+                onDoubleClick={() => {}} // handled via detail checking in onClick
                 onKeyDown={(e) => handleKeyDown(e, day, idx)}
               />
             );

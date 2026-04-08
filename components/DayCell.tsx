@@ -11,7 +11,7 @@ interface DayCellProps {
   isRangeStart: boolean;
   isRangeEnd: boolean;
   isInRange: boolean;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   onDoubleClick: () => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }
@@ -35,30 +35,30 @@ export function DayCell({
   const dateKey = format(day, 'yyyy-MM-dd');
   const holidayName = holidays[dateKey];
 
-  const baseClasses = "relative w-full aspect-square sm:h-12 sm:aspect-auto flex flex-col items-center justify-center text-xs sm:text-sm transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--accent)]";
+  const baseClasses = "relative w-full aspect-square sm:h-12 sm:aspect-auto flex flex-col items-center justify-center text-xs sm:text-sm transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--theme-primary)]";
   
   let conditionalClasses = "";
-  let textClasses = "text-gray-700";
+  let textClasses = "text-[var(--theme-text)]";
 
   if (isOtherMonth) {
-    textClasses = "text-gray-300";
-    conditionalClasses = "bg-white hover:bg-gray-50";
+    textClasses = "text-[var(--theme-text-muted)] opacity-70";
+    conditionalClasses = "hover:bg-black/5";
   } else if (isStartAndEnd) {
-    conditionalClasses = "bg-[var(--accent)] rounded-full text-white";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-[var(--theme-radius)] text-white shadow-md";
     textClasses = "text-white font-semibold";
   } else if (isRangeStart) {
-    conditionalClasses = "bg-[var(--accent)] rounded-l-full text-white";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-l-[var(--theme-radius)] text-white shadow-md";
     textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isRangeEnd) {
-    conditionalClasses = "bg-[var(--accent)] rounded-r-full text-white";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-r-[var(--theme-radius)] text-white shadow-md";
     textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isSelectedSingle) {
-    conditionalClasses = "bg-[var(--accent)] rounded-full text-white";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-[var(--theme-radius)] text-white shadow-md";
     textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isInRange) {
-    conditionalClasses = "bg-[var(--accent)] bg-opacity-20";
+    conditionalClasses = "bg-[var(--theme-primary)] opacity-20";
   } else {
-    conditionalClasses = "bg-white hover:bg-gray-100 rounded-full";
+    conditionalClasses = "hover:bg-black/5 rounded-[var(--theme-radius)]";
     if (isWeekend) textClasses = "text-red-500 font-medium";
     if (isToday) textClasses += " !font-bold";
   }
@@ -86,7 +86,7 @@ export function DayCell({
       
       <div className={`absolute ${isRangeStart || isRangeEnd ? 'top-1' : 'bottom-1'} flex gap-1 pointer-events-none`}>
         {isToday && !isSelected && (
-          <span className="w-1 h-1 rounded-full bg-[var(--accent)]" />
+          <span className="w-1 h-1 rounded-full" style={{ backgroundColor: 'var(--theme-primary)' }} />
         )}
         {holidayName && !isSelected && (
           <span className="w-1 h-1 rounded-full bg-orange-400" />

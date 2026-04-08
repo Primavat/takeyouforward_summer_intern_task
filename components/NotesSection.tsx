@@ -76,16 +76,18 @@ export function NotesSection({ onClose }: NotesSectionProps) {
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: '100%', opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="absolute top-0 right-0 bottom-0 w-full sm:w-2/3 md:w-1/2 z-50 bg-white shadow-[-10px_0_30px_-10px_rgba(0,0,0,0.1)] border-l border-gray-100 flex flex-col overflow-hidden"
+        className="absolute top-0 right-0 bottom-0 w-full sm:w-2/3 md:w-1/2 z-50 shadow-[-10px_0_30px_-10px_rgba(0,0,0,0.1)] border-l border-b border-black/5 flex flex-col overflow-hidden"
+        style={{ backgroundColor: 'var(--theme-surface)', color: 'var(--theme-text)', borderBottomRightRadius: 'var(--theme-radius)' }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800 truncate pr-2">
+        <div className="flex items-center justify-between p-4 border-b border-black/5 bg-black/5">
+          <h3 className="text-base sm:text-lg font-semibold truncate pr-2" style={{ color: 'var(--theme-text)' }}>
             {title}
           </h3>
           <button 
             onClick={onClose}
-            className="p-1.5 shrink-0 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition"
+            className="p-1.5 shrink-0 rounded-[var(--theme-radius)] hover:bg-black/10 transition"
             aria-label="Close notes"
+            style={{ color: 'var(--theme-text-muted)' }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
@@ -96,15 +98,22 @@ export function NotesSection({ onClose }: NotesSectionProps) {
             value={localNote}
             onChange={handleChange}
             placeholder="Type your observations or tasks here..."
-            className="w-full h-full min-h-[200px] p-4 text-sm sm:text-base border border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent outline-none resize-none transition-shadow text-gray-700"
+            className="w-full h-full min-h-[200px] p-4 text-sm sm:text-base border border-black/10 focus:ring-2 focus:border-transparent outline-none resize-none transition-shadow"
+            style={{ 
+              backgroundColor: 'var(--theme-surface)', 
+              color: 'var(--theme-text)', 
+              borderRadius: 'var(--theme-radius)',
+              '--tw-ring-color': 'var(--theme-primary)'
+            } as React.CSSProperties}
           />
         </div>
 
-        <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 items-center flex-wrap shrink-0">
+        <div className="p-4 border-t border-black/5 flex justify-end gap-3 items-center flex-wrap shrink-0 bg-black/5">
           <button
             onClick={handleDownload}
             disabled={!localNote.trim()}
-            className="px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 hover:text-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="px-4 py-2.5 flex items-center gap-2 text-sm font-medium border border-black/10 hover:bg-black/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            style={{ backgroundColor: 'var(--theme-surface)', color: 'var(--theme-text)', borderRadius: 'var(--theme-radius)' }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Download
@@ -112,8 +121,8 @@ export function NotesSection({ onClose }: NotesSectionProps) {
           
           <button
             onClick={handleSave}
-            className="px-6 py-2.5 flex items-center gap-2 text-sm font-semibold text-white rounded-xl transition-all hover:brightness-110 active:scale-[0.98] shadow-sm"
-            style={{ backgroundColor: 'var(--accent)' }}
+            className="px-6 py-2.5 flex items-center gap-2 text-sm font-semibold transition-all hover:brightness-110 active:scale-[0.98] shadow-sm"
+            style={{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-surface)', borderRadius: 'var(--theme-radius)' }}
           >
             Save Note
           </button>
