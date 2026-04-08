@@ -21,7 +21,7 @@ export function MonthGrid() {
       if (clickTimer.current) clearTimeout(clickTimer.current);
       clickTimer.current = setTimeout(() => {
         dispatch({ type: 'SET_SINGLE', payload: day });
-      }, 200);
+      }, 350);
     } 
     // If detail is 2 (Double Click correctly firing, intercepted)
     else if (detail === 2) {

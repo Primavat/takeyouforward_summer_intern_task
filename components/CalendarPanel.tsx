@@ -7,6 +7,7 @@ import { NotesSection } from './NotesSection';
 import { useCalendar } from '@/context/CalendarContext';
 import { formatNoteKey } from '@/lib/calendarUtils';
 import { AnimatePresence } from 'framer-motion';
+import { LiveThemeEffects } from './LiveThemeEffects';
 
 export function CalendarPanel() {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -37,6 +38,7 @@ export function CalendarPanel() {
       
       {/* Scrollable Container for grid & restricted overlay */}
       <div className="relative flex-1 overflow-y-auto overflow-x-hidden min-h-[300px]">
+        <LiveThemeEffects />
         <MonthGrid />
         
         <AnimatePresence>
