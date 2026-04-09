@@ -90,7 +90,7 @@ export function HeroPanel() {
           <div 
             className="absolute inset-0 bg-cover bg-center blur-xl scale-110 transition-opacity duration-500"
             style={{ 
-              backgroundImage: `url(${currentMonthImage})`,
+              backgroundImage: `url('${currentMonthImage}')`,
               opacity: isLoaded ? 0.5 : 1 
             }}
           />
