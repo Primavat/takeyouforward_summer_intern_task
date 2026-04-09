@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { holidays } from '@/data/holidays';
+import { getHolidayInfo, shouldShowHolidayIndicator, HOLIDAY_INDICATOR_COLOR } from '@/lib/holidays';
 
 interface DayCellProps {
   day: Date;
@@ -29,11 +29,16 @@ export function DayCell({
   onDoubleClick,
   onKeyDown
 }: DayCellProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  
   const isSelected = isSelectedSingle || isRangeStart || isRangeEnd;
   const isStartAndEnd = isRangeStart && isRangeEnd;
   
-  const dateKey = format(day, 'yyyy-MM-dd');
-  const holidayName = holidays[dateKey];
+  // Get holiday information
+  const holidayInfo = getHolidayInfo(day);
+  const holidayName = holidayInfo.name;
+  const isWeekdayHoliday = holidayInfo.isWeekdayHoliday;
+  const shouldHighlight = shouldShowHolidayIndicator(day);
 
   const baseClasses = "relative w-full aspect-square sm:h-12 sm:aspect-auto flex flex-col items-center justify-center text-xs sm:text-sm transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--theme-primary)]";
   
@@ -61,20 +66,33 @@ export function DayCell({
     conditionalClasses = "hover:bg-black/5 rounded-[var(--theme-radius)]";
     if (isWeekend) textClasses = "text-red-500 font-medium";
     if (isToday) textClasses += " !font-bold";
+    // Add subtle background tint for weekday holidays
+    if (shouldHighlight) {
+      conditionalClasses += " bg-amber-500/10";
+    }
   }
 
   return (
     <div
       role="gridcell"
       aria-label={`${format(day, 'PP')}${holidayName ? `, Holiday: ${holidayName}` : ''}${isSelected ? ' (Selected)' : ''}`}
-      title={holidayName || format(day, 'PPPP')}
       className={`${baseClasses} ${conditionalClasses}`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       onKeyDown={onKeyDown}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
       tabIndex={isOtherMonth ? -1 : 0}
-      data-date={dateKey}
+      data-date={format(day, 'yyyy-MM-dd')}
     >
+      {/* Holiday Tooltip */}
+      {showTooltip && holidayName && (
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-50 px-2 py-1 bg-gray-800 text-white text-[10px] rounded whitespace-nowrap shadow-lg pointer-events-none animate-fade-in">
+          {holidayName}
+          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+        </div>
+      )}
+      
       <span className={textClasses}>{format(day, 'd')}</span>
       
       {/* Range Labels UI Badge */}
@@ -84,14 +102,29 @@ export function DayCell({
         </span>
       )}
       
+      {/* Indicator dots */}
       <div className={`absolute ${isRangeStart || isRangeEnd ? 'top-1' : 'bottom-1'} flex gap-1 pointer-events-none`}>
+        {/* Today indicator */}
         {isToday && !isSelected && (
-          <span className="w-1 h-1 rounded-full" style={{ backgroundColor: 'var(--theme-primary)' }} />
+          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--theme-primary)' }} />
         )}
-        {holidayName && !isSelected && (
-          <span className="w-1 h-1 rounded-full bg-orange-400" />
+        
+        {/* Holiday indicator - only for weekday holidays */}
+        {isWeekdayHoliday && !isSelected && (
+          <span 
+            className="w-1.5 h-1.5 rounded-full animate-pulse-subtle"
+            style={{ backgroundColor: HOLIDAY_INDICATOR_COLOR }}
+          />
         )}
       </div>
+      
+      {/* Holiday border accent for weekday holidays */}
+      {isWeekdayHoliday && !isSelected && (
+        <div 
+          className="absolute inset-x-1 bottom-0 h-0.5 rounded-full opacity-60"
+          style={{ backgroundColor: HOLIDAY_INDICATOR_COLOR }}
+        />
+      )}
     </div>
   );
 }

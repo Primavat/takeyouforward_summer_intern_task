@@ -123,3 +123,21 @@ body {
 .animate-pulse-slow {
   animation: pulse-slow 8s ease-in-out infinite;
 }
+
+/* Holiday tooltip fade in */
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+/* Subtle pulse for holiday indicator */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
