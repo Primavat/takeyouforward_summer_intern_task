@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useCalendar } from '@/context/CalendarContext';
 import { ChevronDivider } from './ChevronDivider';
 import { format } from 'date-fns';
@@ -86,23 +85,16 @@ export function HeroPanel() {
     >
       {hasImage && (
         <>
-          {/* Blurred background placeholder - fills black areas */}
+          {/* Blurred background - fills container */}
           <div 
-            className="absolute inset-0 bg-cover bg-center blur-xl scale-110 transition-opacity duration-500"
-            style={{ 
-              backgroundImage: `url('${currentMonthImage}')`,
-              opacity: isLoaded ? 0.5 : 1 
-            }}
+            className="absolute inset-0 bg-cover bg-center blur-lg scale-125"
+            style={{ backgroundImage: `url('${currentMonthImage}')` }}
           />
-          {/* Main image with object-contain for full visibility */}
-          <Image
+          {/* Main image - centered and contained */}
+          <img
             src={currentMonthImage}
             alt="Hero Background"
-            fill
-            className="object-contain z-10"
-            loading="eager"
-            priority
-            sizes="(max-width: 768px) 100vw, 40vw"
+            className="absolute inset-0 w-full h-full object-contain z-10"
             onLoad={() => setIsLoaded(true)}
           />
         </>
