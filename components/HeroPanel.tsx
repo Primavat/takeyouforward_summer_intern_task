@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useCalendar } from '@/context/CalendarContext';
 import { ChevronDivider } from './ChevronDivider';
 import { format } from 'date-fns';
@@ -27,7 +28,6 @@ export function HeroPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const extractTheme = useThemeExtract();
   const [isHovered, setIsHovered] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
   
   // Get current month key for per-month images
   const monthKey = format(state.currentMonth, 'yyyy-MM');
@@ -40,11 +40,6 @@ export function HeroPanel() {
   // Use uploaded image if available, otherwise use default monthly image
   const currentMonthImage = userUploadedImage || defaultMonthImage;
   const hasImage = !!currentMonthImage;
-  
-  // Reset loaded state when image changes
-  useEffect(() => {
-    setIsLoaded(false);
-  }, [currentMonthImage]);
   
   // Preload adjacent month images for faster switching
   useEffect(() => {
@@ -91,11 +86,13 @@ export function HeroPanel() {
             style={{ backgroundImage: `url('${currentMonthImage}')` }}
           />
           {/* Main image - centered and contained */}
-          <img
+          <Image
             src={currentMonthImage}
             alt="Hero Background"
-            className="absolute inset-0 w-full h-full object-contain z-10"
-            onLoad={() => setIsLoaded(true)}
+            fill
+            className="object-contain z-10"
+            priority
+            sizes="(max-width: 768px) 100vw, 40vw"
           />
         </>
       )}
