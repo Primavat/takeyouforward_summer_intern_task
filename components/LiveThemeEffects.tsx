@@ -22,18 +22,6 @@ class StableRNG {
   }
 }
 
-// Pre-generated stable configuration for each season
-interface ElementConfig {
-  id: number;
-  left: string;
-  top: string;
-  delay: string;
-  duration: string;
-  size?: string;
-  opacity?: string;
-  icon?: string;
-}
-
 // Spring flower state
 interface FlowerState {
   currentIndex: number;
@@ -46,9 +34,11 @@ export function LiveThemeEffects() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   
+  // Extract currentMonth to avoid complex expressions in dependency arrays
+  const currentMonth = state.currentMonth;
+  
   // Stable RNG initialized once per month
-  const monthSeed = useMemo(() => state.currentMonth.getMonth() + 1, [state.currentMonth.getMonth()]);
-  const rng = useMemo(() => new StableRNG(monthSeed * 1000), [monthSeed]);
+  const monthSeed = useMemo(() => currentMonth.getMonth() + 1, [currentMonth]);
   
   // Generate stable configurations once per mount/month
   const stableConfigs = useMemo(() => {
@@ -183,7 +173,7 @@ export function LiveThemeEffects() {
 
   // Initialize sequential flower animation
   useEffect(() => {
-    const monthIndex = state.currentMonth.getMonth();
+    const monthIndex = currentMonth.getMonth();
     const isSpring = monthIndex === 2 || monthIndex === 3;
 
     if (!isSpring || !mounted) {
@@ -203,7 +193,7 @@ export function LiveThemeEffects() {
       clearTimeout(initialDelay);
       resetFlowerState();
     };
-  }, [state.currentMonth.getMonth(), mounted, spawnNextFlower]);
+  }, [currentMonth, mounted, spawnNextFlower, resetFlowerState]);
 
   useEffect(() => {
     setMounted(true);
