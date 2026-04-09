@@ -74,7 +74,12 @@ export function MonthGrid() {
     <div className="w-full select-none mt-4 overflow-hidden" style={{ perspective: '800px' }}>
       <div className="grid grid-cols-7 mb-2">
         {DAYS_OF_WEEK.map((dayName) => (
-          <div key={dayName} className="text-center text-xs font-semibold text-gray-500 uppercase tracking-wider" aria-hidden="true">
+          <div 
+            key={dayName} 
+            className="text-center text-xs font-semibold uppercase tracking-wider transition-colors duration-500" 
+            style={{ color: 'var(--theme-text-muted)' }}
+            aria-hidden="true"
+          >
             {dayName}
           </div>
         ))}

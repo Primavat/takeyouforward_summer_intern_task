@@ -4,6 +4,7 @@ export type CalendarState = {
   rangeStart: Date | null;
   rangeEnd: Date | null;
   notes: Record<string, string>;
-  heroImageUrl: string | null;
+  monthImages: Record<string, string>; // monthKey (YYYY-MM) -> imageUrl
+  heroImageUrl: string | null; // fallback for backward compatibility
   accentColor: string;
 };

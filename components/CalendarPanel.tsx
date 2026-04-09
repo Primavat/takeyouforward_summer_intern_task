@@ -33,7 +33,7 @@ export function CalendarPanel() {
   if (!hasNotes) buttonLabel = buttonLabel.replace('Edit', 'Add');
 
   return (
-    <div className="flex flex-col md:p-6 p-4 h-full relative" style={{ backgroundColor: 'var(--theme-surface)', color: 'var(--theme-text)', overflow: 'hidden' }}>
+    <div className="flex flex-col md:p-6 p-4 h-full relative transition-colors duration-500" style={{ backgroundColor: 'var(--theme-surface)', color: 'var(--theme-text)', overflow: 'hidden' }}>
       <MonthHeader />
       
       {/* Scrollable Container for grid & restricted overlay */}

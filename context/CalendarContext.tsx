@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useReducer, ReactNode, Dispatch, useEffect, useRef } from 'react';
 import { CalendarState } from '@/types/calendar';
+import { format } from 'date-fns';
 
 type Action =
   | { type: 'SET_MONTH'; payload: Date }
@@ -10,7 +11,8 @@ type Action =
   | { type: 'SET_RANGE_END'; payload: Date | null }
   | { type: 'CLEAR_SELECTION' }
   | { type: 'SET_NOTE'; payload: { key: string; note: string } }
-  | { type: 'SET_IMAGE'; payload: string | null }
+  | { type: 'SET_IMAGE'; payload: string | null } // Deprecated: use SET_MONTH_IMAGE
+  | { type: 'SET_MONTH_IMAGE'; payload: { monthKey: string; imageUrl: string | null } }
   | { type: 'SET_ACCENT'; payload: string }
   | { type: 'HYDRATE'; payload: CalendarState };
 
@@ -20,6 +22,7 @@ const initialState: CalendarState = {
   rangeStart: null,
   rangeEnd: null,
   notes: {},
+  monthImages: {},
   heroImageUrl: null,
   accentColor: '#3b82f6', // Default blue-500
 };
@@ -39,7 +42,32 @@ function calendarReducer(state: CalendarState, action: Action): CalendarState {
     case 'SET_NOTE':
       return { ...state, notes: { ...state.notes, [action.payload.key]: action.payload.note } };
     case 'SET_IMAGE':
-      return { ...state, heroImageUrl: action.payload };
+      // Legacy: sets image for current month
+      const monthKeyForLegacy = format(state.currentMonth, 'yyyy-MM');
+      return { 
+        ...state, 
+        heroImageUrl: action.payload,
+        monthImages: { 
+          ...state.monthImages, 
+          [monthKeyForLegacy]: action.payload || '' 
+        }
+      };
+    case 'SET_MONTH_IMAGE':
+      const { monthKey, imageUrl } = action.payload;
+      const newMonthImages = { ...state.monthImages };
+      if (imageUrl) {
+        newMonthImages[monthKey] = imageUrl;
+      } else {
+        delete newMonthImages[monthKey];
+      }
+      return { 
+        ...state, 
+        monthImages: newMonthImages,
+        // Also update heroImageUrl if this is the current month
+        heroImageUrl: monthKey === format(state.currentMonth, 'yyyy-MM') 
+          ? imageUrl 
+          : state.heroImageUrl
+      };
     case 'SET_ACCENT':
       return { ...state, accentColor: action.payload };
     case 'HYDRATE':
@@ -71,6 +99,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
             rangeStart: parsed.rangeStart ? new Date(parsed.rangeStart) : null,
             rangeEnd: parsed.rangeEnd ? new Date(parsed.rangeEnd) : null,
             notes: parsed.notes || {},
+            monthImages: parsed.monthImages || {},
             heroImageUrl: parsed.heroImageUrl || null,
             accentColor: parsed.accentColor || '#3b82f6',
           }

@@ -8,11 +8,22 @@ export function MonthHeader() {
   const { state, dispatch } = useCalendar();
 
   return (
-    <div className="flex items-center justify-between px-4 py-2">
+    <div className="flex items-center justify-between px-4 py-2 transition-colors duration-500">
       <button 
         onClick={() => dispatch({ type: 'SET_MONTH', payload: subMonths(state.currentMonth, 1) })}
-        className="p-2 hover:bg-black/5 rounded-full transition-colors flex items-center justify-center w-10 h-10"
-        style={{ color: 'var(--theme-text-muted)' }}
+        className="p-2 rounded-full transition-all duration-300 flex items-center justify-center w-10 h-10 hover:scale-110"
+        style={{ 
+          color: 'var(--theme-text-muted)',
+          backgroundColor: 'transparent'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--theme-text-muted)';
+          e.currentTarget.style.color = 'var(--theme-surface)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = 'var(--theme-text-muted)';
+        }}
         aria-label="Previous month"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
@@ -22,8 +33,19 @@ export function MonthHeader() {
       </h2>
       <button 
         onClick={() => dispatch({ type: 'SET_MONTH', payload: addMonths(state.currentMonth, 1) })}
-        className="p-2 hover:bg-black/5 rounded-full transition-colors flex items-center justify-center w-10 h-10"
-        style={{ color: 'var(--theme-text-muted)' }}
+        className="p-2 rounded-full transition-all duration-300 flex items-center justify-center w-10 h-10 hover:scale-110"
+        style={{ 
+          color: 'var(--theme-text-muted)',
+          backgroundColor: 'transparent'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'var(--theme-text-muted)';
+          e.currentTarget.style.color = 'var(--theme-surface)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = 'var(--theme-text-muted)';
+        }}
         aria-label="Next month"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
