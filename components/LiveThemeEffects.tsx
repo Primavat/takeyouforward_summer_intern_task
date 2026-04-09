@@ -1,29 +1,222 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import { useCalendar } from '@/context/CalendarContext';
+
+// Stable seeded random number generator to avoid re-randomization on renders
+class StableRNG {
+  private seed: number;
+  
+  constructor(seed: number) {
+    this.seed = seed;
+  }
+  
+  next(): number {
+    // Linear congruential generator for stable pseudo-random numbers
+    this.seed = (this.seed * 9301 + 49297) % 233280;
+    return this.seed / 233280;
+  }
+  
+  range(min: number, max: number): number {
+    return min + this.next() * (max - min);
+  }
+}
+
+// Pre-generated stable configuration for each season
+interface ElementConfig {
+  id: number;
+  left: string;
+  top: string;
+  delay: string;
+  duration: string;
+  size?: string;
+  opacity?: string;
+  icon?: string;
+}
+
+// Spring flower state
+interface FlowerState {
+  currentIndex: number;
+  isVisible: boolean;
+  lastSpawnTime: number;
+}
 
 export function LiveThemeEffects() {
   const { state } = useCalendar();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   
+  // Stable RNG initialized once per month
+  const monthSeed = useMemo(() => state.currentMonth.getMonth() + 1, [state.currentMonth.getMonth()]);
+  const rng = useMemo(() => new StableRNG(monthSeed * 1000), [monthSeed]);
+  
+  // Generate stable configurations once per mount/month
+  const stableConfigs = useMemo(() => {
+    const rngInstance = new StableRNG(monthSeed * 1000);
+
+    // Helper for balanced left/right distribution
+    const getBalancedPosition = (index: number, total: number, min: number, max: number): number => {
+      // Split into left and right halves with staggered distribution
+      const half = Math.ceil(total / 2);
+      const isLeft = index % 2 === 0;
+      const halfIndex = Math.floor(index / 2);
+      const range = (max - min) / half;
+      const base = isLeft ? min : (min + max) / 2;
+      return base + (halfIndex * range) + rngInstance.range(-5, 5);
+    };
+
+    return {
+      // Jan-Feb: Frost particles with balanced distribution + gentle drift
+      sparkles: Array.from({ length: 30 }, (_, i) => {
+        const left = getBalancedPosition(i, 30, 5, 95);
+        return {
+          id: i,
+          left: `${Math.max(5, Math.min(95, left))}%`,
+          top: `-10px`, // Start above viewport for drift-in
+          delay: `-${rngInstance.range(0, 30)}s`,
+          duration: `${rngInstance.range(10, 18)}s` // Slow gentle drift
+        };
+      }),
+
+      flowers: Array.from({ length: 12 }, (_, i) => ({
+        id: i,
+        left: `${rngInstance.range(8, 92)}%`,
+        // Restrict to grid area (25-90% from top, avoiding header)
+        top: `${rngInstance.range(25, 90)}%`,
+        icon: ['🌸', '🌺', '🌼', '🌷', '🌻'][Math.floor(rngInstance.range(0, 5))]
+      })),
+
+      rays: Array.from({ length: 5 }, (_, i) => ({
+        id: i,
+        rotate: `${-15 - (i * 12)}deg`,
+        delay: `-${rngInstance.range(0, 20)}s`,
+        duration: `${rngInstance.range(6, 12)}s`
+      })),
+
+      rain: Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        left: `${rngInstance.range(0, 100)}%`,
+        height: `${rngInstance.range(10, 25)}px`,
+        delay: `-${rngInstance.range(0, 15)}s`,
+        duration: `${rngInstance.range(0.5, 0.9)}s`
+      })),
+
+      // Sept-Oct: Leaves with balanced left/right distribution
+      leaves: Array.from({ length: 24 }, (_, i) => {
+        const left = getBalancedPosition(i, 24, 0, 100);
+        return {
+          id: i,
+          left: `${Math.max(0, Math.min(100, left))}%`,
+          delay: `-${rngInstance.range(0, 20)}s`, // Reduced spread for more continuous flow
+          duration: `${rngInstance.range(6, 10)}s`,
+          icon: ['🍁', '🍂', '🍃'][Math.floor(rngInstance.range(0, 3))]
+        };
+      }),
+
+      snow: Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        left: `${rngInstance.range(0, 100)}%`,
+        size: `${rngInstance.range(3, 8)}px`,
+        delay: `-${rngInstance.range(0, 30)}s`,
+        duration: `${rngInstance.range(6, 10)}s`,
+        opacity: `${rngInstance.range(0.5, 0.9)}`
+      }))
+    };
+  }, [monthSeed]);
+
+  // Sequential flower animation controller
+  const flowerControllerRef = useRef<FlowerState>({
+    currentIndex: 0,
+    isVisible: false,
+    lastSpawnTime: 0
+  });
+  const [activeFlowerIndex, setActiveFlowerIndex] = useState(-1);
+  const flowerTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const bloomTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset controller state - used when month changes
+  const resetFlowerState = useCallback(() => {
+    // Clear all pending timeouts
+    if (flowerTimeoutRef.current) {
+      clearTimeout(flowerTimeoutRef.current);
+      flowerTimeoutRef.current = null;
+    }
+    if (bloomTimeoutRef.current) {
+      clearTimeout(bloomTimeoutRef.current);
+      bloomTimeoutRef.current = null;
+    }
+    // Reset controller
+    flowerControllerRef.current = {
+      currentIndex: 0,
+      isVisible: false,
+      lastSpawnTime: 0
+    };
+    // Reset UI state
+    setActiveFlowerIndex(-1);
+  }, []);
+
+  const spawnNextFlower = useCallback(() => {
+    const controller = flowerControllerRef.current;
+    const now = Date.now();
+
+    // Reduced delay between flowers by 60%: 0.8-1.6 seconds (was 2-4s)
+    const nextDelay = 800 + Math.random() * 800;
+
+    controller.currentIndex = (controller.currentIndex + 1) % stableConfigs.flowers.length;
+    controller.isVisible = true;
+    controller.lastSpawnTime = now;
+
+    setActiveFlowerIndex(controller.currentIndex);
+
+    // Bloom duration: 2 seconds (matching CSS animation)
+    bloomTimeoutRef.current = setTimeout(() => {
+      controller.isVisible = false;
+      // Ensure clean exit by clearing flower immediately
+      setActiveFlowerIndex(-1);
+
+      // Schedule next flower spawn with reduced delay
+      flowerTimeoutRef.current = setTimeout(() => {
+        spawnNextFlower();
+      }, nextDelay);
+    }, 2000);
+  }, [stableConfigs.flowers.length]);
+
+  // Initialize sequential flower animation
+  useEffect(() => {
+    const monthIndex = state.currentMonth.getMonth();
+    const isSpring = monthIndex === 2 || monthIndex === 3;
+
+    if (!isSpring || !mounted) {
+      resetFlowerState();
+      return;
+    }
+
+    // FULL RESET when entering spring (handles March->April transition)
+    resetFlowerState();
+
+    // Start the sequence after a brief delay
+    const initialDelay = setTimeout(() => {
+      spawnNextFlower();
+    }, 500);
+
+    return () => {
+      clearTimeout(initialDelay);
+      resetFlowerState();
+    };
+  }, [state.currentMonth.getMonth(), mounted, spawnNextFlower]);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
   const monthIndex = state.currentMonth.getMonth();
 
-  // 1. Vasanta (Spring): Mar (2), Apr (3)
+  // Season flags
   const isSpring = monthIndex === 2 || monthIndex === 3;
-  // 2. Grishma (Summer): May (4), Jun (5)
   const isSummer = monthIndex === 4 || monthIndex === 5;
-  // 3. Varsha (Monsoon): Jul (6), Aug (7)
   const isMonsoon = monthIndex === 6 || monthIndex === 7;
-  // 4. Sharad (Autumn): Sep (8), Oct (9)
   const isAutumn = monthIndex === 8 || monthIndex === 9;
-  // 5. Hemanta (Pre-Winter / Heavy Winter): Nov (10), Dec (11) (Old Sept/Oct Dark Snow)
   const isWinterHeavy = monthIndex === 10 || monthIndex === 11;
-  // 6. Shishira (Winter Light): Jan (0), Feb (1)
   const isWinterLight = monthIndex === 0 || monthIndex === 1;
   
   if (!mounted) return null;
@@ -31,18 +224,19 @@ export function LiveThemeEffects() {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-100 transition-opacity duration-1000">
       
-      {/* 1. Winter Light (Jan/Feb) - Subtle Frost Sparkles */}
+      {/* 1. Winter Light (Jan/Feb) - Frost Sparkles with Gentle Drift (STABLE) */}
       {isWinterLight && (
         <div className="winter-light-container absolute inset-0">
-          {[...Array(25)].map((_, i) => (
-            <div 
-              key={`sparkle-${monthIndex}-${i}`} 
-              className="absolute text-cyan-500/30 text-xs sm:text-sm animate-sparkle"
+          {stableConfigs.sparkles.map((config) => (
+            <div
+              key={`sparkle-${config.id}`}
+              className="absolute text-cyan-500/30 text-xs sm:text-sm animate-frost-drift pointer-events-none"
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `-${Math.random() * 20}s`,
-                animationDuration: `${Math.random() * 8 + 6}s`
+                left: config.left,
+                top: config.top,
+                animationDelay: config.delay,
+                animationDuration: config.duration,
+                filter: 'blur(0.5px)'
               }}
             >
               ✨
@@ -51,112 +245,112 @@ export function LiveThemeEffects() {
         </div>
       )}
 
-      {/* 2. Spring (Vasanta) - Random Blooming Flowers within Date Grid */}
+      {/* 2. Spring (Vasanta) - Sequential Single Flower Blooming (2s cycle, reduced delays) */}
+      {/* Key forces remount when month changes within spring (March <-> April) */}
       {isSpring && (
-        <div className="spring-container absolute inset-0">
-          {[...Array(20)].map((_, i) => {
-            const icons = ['🌸', '🌺', '🌼', '🌷', '🌻'];
-            // Flowers bloom within the date grid area (lower 75% where day cells are)
-            const gridTop = 25 + Math.random() * 70; // 25% to 95% from top
-            const gridLeft = 5 + Math.random() * 90; // 5% to 95% from left
-            return (
-              <div
-                key={`bloom-${monthIndex}-${i}`}
-                className="absolute text-lg sm:text-xl animate-bloom drop-shadow-sm"
-                style={{
-                  left: `${gridLeft}%`,
-                  top: `${gridTop}%`,
-                  animationDelay: `-${Math.random() * 30}s`,
-                  animationDuration: `${Math.random() * 8 + 12}s`
-                }}
-              >
-                {icons[i % icons.length]}
-              </div>
-            );
-          })}
+        <div
+          className="spring-container absolute inset-0"
+          ref={containerRef}
+          key={`spring-${monthIndex}`}
+        >
+          {stableConfigs.flowers.map((config, index) => (
+            <div
+              key={`flower-${config.id}`}
+              className={`absolute text-lg sm:text-xl drop-shadow-sm ${
+                index === activeFlowerIndex ? 'animate-bloom' : 'opacity-0'
+              }`}
+              style={{
+                left: config.left,
+                top: config.top,
+                pointerEvents: 'none',
+                zIndex: 1,
+                // Ensure element stays hidden when not active
+                visibility: index === activeFlowerIndex ? 'visible' : 'hidden'
+              }}
+            >
+              {config.icon}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* 3. Summer (Grishma) - Top-right Sun element + extended dim rays */}
+      {/* 3. Summer (Grishma) - Top-right Sun element + extended dim rays (STABLE) */}
       {isSummer && (
         <div className="summer-container absolute inset-0 overflow-hidden">
-          <div className="absolute top-[-30px] right-[-30px] w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-yellow-400/20 blur-[40px] animate-pulse-slow mix-blend-overlay"></div>
-          
-          {/* Extremely subtle Sun Rays stretching down diagonally */}
-          {[...Array(5)].map((_, i) => (
-            <div 
-              key={`ray-${monthIndex}-${i}`}
-              className="absolute top-[-10%] right-[-5%] w-[150px] h-screen bg-gradient-to-b from-yellow-500/10 to-transparent mix-blend-overlay transform origin-top-right animate-pulse"
+          <div className="absolute top-[-30px] right-[-30px] w-48 h-48 sm:w-64 sm:h-64 rounded-full bg-yellow-400/20 blur-[40px] animate-pulse-slow mix-blend-overlay pointer-events-none"></div>
+
+          {/* Stable Sun Rays stretching down diagonally */}
+          {stableConfigs.rays.map((config) => (
+            <div
+              key={`ray-${config.id}`}
+              className="absolute top-[-10%] right-[-5%] w-[150px] h-screen bg-gradient-to-b from-yellow-500/10 to-transparent mix-blend-overlay transform origin-top-right animate-pulse pointer-events-none"
               style={{
-                rotate: `${-15 - (i * 12)}deg`,
-                animationDelay: `-${Math.random() * 20}s`,
-                animationDuration: `${Math.random() * 6 + 6}s`
+                rotate: config.rotate,
+                animationDelay: config.delay,
+                animationDuration: config.duration
               }}
             />
           ))}
         </div>
       )}
 
-      {/* 4. Monsoon (Varsha) - Falling Rain Droplets (UNCHANGED - already perfect) */}
+      {/* 4. Monsoon (Varsha) - Falling Rain Droplets (STABLE) */}
       {isMonsoon && (
         <div className="monsoon-container absolute inset-0 opacity-80">
-          {[...Array(40)].map((_, i) => (
+          {stableConfigs.rain.map((config) => (
             <div
-              key={`rain-${monthIndex}-${i}`}
-              className="absolute bg-blue-300 opacity-60 animate-rain"
+              key={`rain-${config.id}`}
+              className="absolute bg-blue-300 opacity-60 animate-rain pointer-events-none"
               style={{
                 width: '1px',
-                height: `${Math.random() * 15 + 10}px`,
-                left: `${Math.random() * 100}%`,
-                top: `-20px`,
-                animationDelay: `-${Math.random() * 15}s`,
-                animationDuration: `${Math.random() * 0.4 + 0.5}s`
+                height: config.height,
+                left: config.left,
+                top: '-20px',
+                animationDelay: config.delay,
+                animationDuration: config.duration
               }}
             />
           ))}
         </div>
       )}
 
-      {/* 5. Autumn (Sharad) - Continuous Medium Leaves with Natural Motion */}
+      {/* 5. Autumn (Sharad) - Continuous Medium Leaves (STABLE) */}
       {isAutumn && (
         <div className="autumn-container absolute inset-0">
-          {[...Array(22)].map((_, i) => {
-            const leaves = ['🍁', '🍂', '🍃'];
-            return (
-              <div
-                key={`leaf-${monthIndex}-${i}`}
-                className="absolute text-lg sm:text-xl drop-shadow-sm opacity-80 animate-fall"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `-30px`,
-                  animationDelay: `-${Math.random() * 25}s`,
-                  animationDuration: `${Math.random() * 5 + 7}s`
-                }}
-              >
-                {leaves[i % leaves.length]}
-              </div>
-            );
-          })}
+          {stableConfigs.leaves.map((config) => (
+            <div
+              key={`leaf-${config.id}`}
+              className="absolute text-lg sm:text-xl drop-shadow-sm opacity-80 animate-fall pointer-events-none"
+              style={{
+                left: config.left,
+                top: '-30px',
+                animationDelay: config.delay,
+                animationDuration: config.duration
+              }}
+            >
+              {config.icon}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* 6. Winter Heavy (Hemanta) - Continuous Snowfall (Old Sept-Oct Dark Theme Snow) */}
+      {/* 6. Winter Heavy (Hemanta) - Continuous Snowfall (STABLE) */}
       {isWinterHeavy && (
         <div className="winter-heavy-container absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {stableConfigs.snow.map((config) => (
             <div
-              key={`snowball-${monthIndex}-${i}`}
-              className="absolute bg-white rounded-full animate-snowfall"
+              key={`snow-${config.id}`}
+              className="absolute bg-white rounded-full animate-snowfall pointer-events-none"
               style={{
-                width: `${Math.random() * 5 + 3}px`,
-                height: `${Math.random() * 5 + 3}px`,
-                left: `${Math.random() * 100}%`,
-                top: `-10px`,
-                opacity: Math.random() * 0.4 + 0.5,
+                width: config.size,
+                height: config.size,
+                left: config.left,
+                top: '-10px',
+                opacity: config.opacity,
                 filter: 'blur(0.5px)',
                 boxShadow: '0 0 6px 1px rgba(255,255,255,0.6)',
-                animationDelay: `-${Math.random() * 30}s`,
-                animationDuration: `${Math.random() * 4 + 6}s`
+                animationDelay: config.delay,
+                animationDuration: config.duration
               }}
             />
           ))}
