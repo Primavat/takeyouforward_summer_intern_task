@@ -85,11 +85,11 @@ export function NotesSection({ onClose }: NotesSectionProps) {
           </h3>
           <button 
             onClick={onClose}
-            className="p-1.5 shrink-0 rounded-[var(--theme-radius)] hover:bg-black/10 transition"
+            className="group p-2 shrink-0 rounded-full hover:bg-black/10 hover:rotate-90 transition-all duration-300"
             aria-label="Close notes"
             style={{ color: 'var(--theme-text-muted)' }}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg className="transition-transform duration-300" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
         
@@ -98,13 +98,22 @@ export function NotesSection({ onClose }: NotesSectionProps) {
             value={localNote}
             onChange={handleChange}
             placeholder="Type your observations or tasks here..."
-            className="w-full h-full min-h-[200px] p-4 text-sm sm:text-base border border-black/10 focus:ring-2 focus:border-transparent outline-none resize-none transition-shadow"
+            className="w-full h-full min-h-[200px] p-4 text-sm sm:text-base border border-black/10 focus:ring-2 focus:border-transparent outline-none resize-none transition-all duration-300 focus:shadow-lg"
             style={{ 
               backgroundColor: 'var(--theme-surface)', 
               color: 'var(--theme-text)', 
               borderRadius: 'var(--theme-radius)',
-              '--tw-ring-color': 'var(--theme-primary)'
+              '--tw-ring-color': 'var(--theme-primary)',
+              transition: 'box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease'
             } as React.CSSProperties}
+            onFocus={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 20px -5px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.2)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           />
         </div>
 
@@ -112,18 +121,32 @@ export function NotesSection({ onClose }: NotesSectionProps) {
           <button
             onClick={handleDownload}
             disabled={!localNote.trim()}
-            className="px-4 py-2.5 flex items-center gap-2 text-sm font-medium border border-black/10 hover:bg-black/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            className="group px-4 py-2.5 flex items-center gap-2 text-sm font-medium border border-black/10 hover:bg-black/5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
             style={{ backgroundColor: 'var(--theme-surface)', color: 'var(--theme-text)', borderRadius: 'var(--theme-radius)' }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <svg className="transition-transform duration-200 group-hover:translate-y-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Download
           </button>
           
           <button
             onClick={handleSave}
-            className="px-6 py-2.5 flex items-center gap-2 text-sm font-semibold transition-all hover:brightness-110 active:scale-[0.98] shadow-sm"
-            style={{ backgroundColor: 'var(--theme-primary)', color: 'var(--theme-surface)', borderRadius: 'var(--theme-radius)' }}
+            className="group px-6 py-2.5 flex items-center gap-2 text-sm font-semibold transition-all duration-300 hover:brightness-110 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
+            style={{ 
+              backgroundColor: 'var(--theme-primary)', 
+              color: 'var(--theme-surface)', 
+              borderRadius: 'var(--theme-radius)',
+              boxShadow: '0 4px 15px -3px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.4)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 8px 25px -5px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 15px -3px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.4)';
+            }}
           >
+            <svg className="transition-transform duration-200 group-hover:scale-110" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
             Save Note
           </button>
         </div>

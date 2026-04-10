@@ -40,35 +40,35 @@ export function DayCell({
   const isWeekdayHoliday = holidayInfo.isWeekdayHoliday;
   const shouldHighlight = shouldShowHolidayIndicator(day);
 
-  const baseClasses = "relative w-full aspect-square sm:h-12 sm:aspect-auto flex flex-col items-center justify-center text-xs sm:text-sm transition-colors cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--theme-primary)]";
+  const baseClasses = "relative w-full aspect-square sm:h-12 sm:aspect-auto flex flex-col items-center justify-center text-xs sm:text-sm transition-all duration-200 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[var(--theme-primary)] hover:scale-105 active:scale-95";
   
   let conditionalClasses = "";
   let textClasses = "text-[var(--theme-text)]";
 
   if (isOtherMonth) {
-    textClasses = "text-[var(--theme-text-muted)] opacity-70";
-    conditionalClasses = "hover:bg-black/5";
+    textClasses = "text-[var(--theme-text-muted)] opacity-60";
+    conditionalClasses = "hover:bg-black/5 hover:opacity-80";
   } else if (isStartAndEnd) {
-    conditionalClasses = "bg-[var(--theme-primary)] rounded-[var(--theme-radius)] text-white shadow-md";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-[var(--theme-radius)] text-white shadow-lg hover:shadow-xl hover:brightness-110";
     textClasses = "text-white font-semibold";
   } else if (isRangeStart) {
-    conditionalClasses = "bg-[var(--theme-primary)] rounded-l-[var(--theme-radius)] text-white shadow-md";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-l-[var(--theme-radius)] text-white shadow-lg hover:shadow-xl hover:brightness-110";
     textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isRangeEnd) {
-    conditionalClasses = "bg-[var(--theme-primary)] rounded-r-[var(--theme-radius)] text-white shadow-md";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-r-[var(--theme-radius)] text-white shadow-lg hover:shadow-xl hover:brightness-110";
     textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isSelectedSingle) {
-    conditionalClasses = "bg-[var(--theme-primary)] rounded-[var(--theme-radius)] text-white shadow-md";
+    conditionalClasses = "bg-[var(--theme-primary)] rounded-[var(--theme-radius)] text-white shadow-lg hover:shadow-xl hover:brightness-110";
     textClasses = "text-white font-semibold flex-1 z-10 flex flex-col justify-center";
   } else if (isInRange) {
-    conditionalClasses = "bg-[var(--theme-primary)] opacity-20";
+    conditionalClasses = "bg-[var(--theme-primary)] opacity-20 hover:opacity-30";
   } else {
-    conditionalClasses = "hover:bg-black/5 rounded-[var(--theme-radius)]";
+    conditionalClasses = "hover:bg-black/5 rounded-[var(--theme-radius)] hover:shadow-sm";
     if (isWeekend) textClasses = "text-red-500 font-medium";
     if (isToday) textClasses += " !font-bold";
     // Add subtle background tint for weekday holidays
     if (shouldHighlight) {
-      conditionalClasses += " bg-amber-500/10";
+      conditionalClasses += " bg-amber-500/10 hover:bg-amber-500/20";
     }
   }
 

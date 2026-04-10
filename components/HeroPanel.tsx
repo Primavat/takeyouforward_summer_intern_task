@@ -80,20 +80,22 @@ export function HeroPanel() {
     >
       {hasImage && (
         <>
-          {/* Blurred background - fills container */}
+          {/* Blurred background - fills container with subtle animation */}
           <div 
-            className="absolute inset-0 bg-cover bg-center blur-lg scale-125"
+            className="absolute inset-0 bg-cover bg-center blur-lg scale-125 transition-all duration-700 ease-out group-hover:scale-130 group-hover:blur-xl"
             style={{ backgroundImage: `url('${currentMonthImage}')` }}
           />
-          {/* Main image - centered and contained */}
-          <Image
-            src={currentMonthImage}
-            alt="Hero Background"
-            fill
-            className="object-contain z-10"
-            priority
-            sizes="(max-width: 768px) 100vw, 40vw"
-          />
+          {/* Main image - centered and contained with zoom on hover */}
+          <div className="absolute inset-0 z-10 overflow-hidden">
+            <Image
+              src={currentMonthImage}
+              alt="Hero Background"
+              fill
+              className="object-contain transition-transform duration-700 ease-out group-hover:scale-105"
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+            />
+          </div>
         </>
       )}
       <div className="absolute inset-0 bg-black/30 mix-blend-multiply" />
@@ -110,13 +112,13 @@ export function HeroPanel() {
       
       {/* Upload/Change Image button - top left corner */}
       {hasImage ? (
-        <div className={`absolute top-4 left-4 sm:top-6 sm:left-6 z-30 transition-all duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute top-4 left-4 sm:top-6 sm:left-6 z-30 transition-all duration-300 ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'}`}>
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="px-4 py-2.5 bg-white/95 hover:bg-white text-gray-800 backdrop-blur-sm border border-white/80 rounded-xl shadow-2xl transition-all text-sm font-semibold flex items-center gap-2 print:hidden"
+            className="group px-4 py-2.5 bg-white/95 hover:bg-white text-gray-800 backdrop-blur-sm border border-white/80 rounded-xl shadow-2xl hover:shadow-lg transition-all duration-300 text-sm font-semibold flex items-center gap-2 print:hidden hover:scale-105 active:scale-95"
             title="Change cover image for this month"
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="transition-transform duration-200 group-hover:-translate-y-0.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
               <polyline points="17 8 12 3 7 8"></polyline>
               <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -128,9 +130,9 @@ export function HeroPanel() {
         <div className="relative z-10 text-center">
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/50 rounded-xl shadow-xl transition-all text-sm font-medium flex items-center gap-2 print:hidden"
+            className="group px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/50 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 text-sm font-medium flex items-center gap-2 print-hidden hover:scale-105 active:scale-95"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg className="transition-transform duration-200 group-hover:scale-110" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
               <circle cx="8.5" cy="8.5" r="1.5"></circle>
               <polyline points="21 15 16 10 5 21"></polyline>
